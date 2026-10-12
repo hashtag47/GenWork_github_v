@@ -4,3 +4,6 @@ TEAM_CHARTER.md
 
 # System Files
 .vscode/
+
+venv/
+.env
