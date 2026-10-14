@@ -41,8 +41,8 @@ def generate_backlog(pitch_content, model="anthropic/claude-sonnet-5"):
 if __name__ == "__main__":
     pitch = read_pitch()
     # model_choice = "openai/gpt-5.6-luna"
-    model_choice = "gemini-4-argon"
-    # model_choice = "anthropic/claude-sonnet-5"
+    # model_choice = "gemini-4-argon"
+    model_choice = "anthropic/claude-sonnet-5"
     response_obj = generate_backlog(pitch, model=model_choice)
     raw_hjson = response_obj.choices[0].message.content
 
