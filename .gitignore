@@ -13,3 +13,6 @@ venv/
 
 .env
 __pycache__/
+
+# Private prompts
+prompts/system_prompt.txt
