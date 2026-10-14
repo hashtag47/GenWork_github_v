@@ -2,8 +2,14 @@
 pitch.md
 TEAM_CHARTER.md
 
-# System Files
+# Editor Settings
 .vscode/
 
+# Python virtual enviroment
 venv/
+
+# System files
+.DS_Store
+
 .env
+__pycache__/
