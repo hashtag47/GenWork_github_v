@@ -1,0 +1,178 @@
+[
+  {
+    session: 2026-10-18T18:51
+    story_id: guest_signup_owner_falcon
+    team_points:
+    [
+      2
+    ]
+    team_fits:
+    [
+      pair
+      pair
+      pair
+      pair
+    ]
+    agents:
+    {
+      anthropic/claude-sonnet-5:
+      {
+        points: 3
+        agent_fit: pair
+      }
+      openai/gpt-6.1-sol:
+      {
+        points: 5
+        agent_fit: human
+      }
+    }
+    discussed:
+    [
+      points range from 2 to 5
+      gpt-6.1-sol says 'human', team majority says 'pair'
+    ]
+    agreed_points: 3
+    agreed_fit: pair
+  }
+  {
+    session: 2026-10-18T18:51
+    story_id: guest_signup_employee_tango
+    team_points:
+    [
+      3
+      3
+      3
+      3
+    ]
+    team_fits:
+    [
+      pair
+      pair
+      pair
+      pair
+    ]
+    agents:
+    {
+      openai/gpt-6.1-sol:
+      {
+        points: 8
+        agent_fit: human
+      }
+    }
+    discussed:
+    [
+      points range from 3 to 8
+      gpt-6.1-sol says 'human', team majority says 'pair'
+    ]
+    agreed_points: 3
+    agreed_fit: pair
+  }
+  {
+    session: 2026-10-18T18:51
+    story_id: guest_login_nova
+    team_points:
+    [
+      2
+      2
+      2
+      2
+    ]
+    team_fits:
+    [
+      agent
+      agent
+      agent
+      agent
+    ]
+    agents:
+    {
+      anthropic/claude-sonnet-5:
+      {
+        points: 3
+        agent_fit: pair
+      }
+      openai/gpt-6.1-sol:
+      {
+        points: 5
+        agent_fit: human
+      }
+    }
+    discussed:
+    [
+      points range from 2 to 5
+      someone says 'agent' and someone says 'human'
+      claude-sonnet-5 says 'pair', team majority says 'agent'
+      gpt-6.1-sol says 'human', team majority says 'agent'
+    ]
+    agreed_points: 3
+    agreed_fit: pair
+  }
+  {
+    session: 2026-10-18T18:51
+    story_id: owner_business_code_juniper
+    team_points:
+    [
+      3
+      3
+      3
+      3
+    ]
+    team_fits:
+    [
+      pair
+      pair
+      pair
+      pair
+    ]
+    agents:
+    {
+      anthropic/claude-sonnet-5:
+      {
+        points: 3
+        agent_fit: pair
+      }
+      openai/gpt-6.1-sol:
+      {
+        points: 5
+        agent_fit: human
+      }
+    }
+    discussed:
+    [
+      gpt-6.1-sol says 'human', team majority says 'pair'
+    ]
+    agreed_points: 3
+    agreed_fit: pair
+  }
+  {
+    session: 2026-10-18T18:51
+    story_id: owner_create_category_bramble
+    team_points:
+    [
+      5
+      5
+      5
+      5
+    ]
+    team_fits:
+    [
+      pair
+    ]
+    agents:
+    {
+      anthropic/claude-sonnet-5:
+      {
+        points: 5
+        agent_fit: pair
+      }
+      openai/gpt-6.1-sol:
+      {
+        points: 5
+        agent_fit: pair
+      }
+    }
+    discussed: []
+    agreed_points: 5
+    agreed_fit: pair
+  }
+]
