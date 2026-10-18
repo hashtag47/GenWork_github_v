@@ -91,7 +91,7 @@ def new_id(title, taken):
 def cited(item):
     return item.get("directive") or "!! NO DIRECTIVE CITED"
 
-PROTECTED_FIELDS = ("points", "notes")  # owned by the human team, never the agent
+PROTECTED_FIELDS = ("points", "notes", "agent_fit")  # owned by the human team, never the agent
 
 def apply_changes(old_backlog, changes, version):
     backlog = copy.deepcopy(old_backlog)
