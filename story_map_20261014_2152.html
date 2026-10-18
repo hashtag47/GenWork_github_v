@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GenWork · User Story Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+      #viewport {
+        cursor: grab;
+        background: #f8fafc;
+      }
+      #viewport.panning {
+        cursor: grabbing;
+      }
+      #canvas {
+        transform-origin: 0 0;
+        will-change: transform;
+        min-width: max-content;
+        padding: 48px;
+      }
+      .story-grid {
+        display: grid;
+        grid-template-columns: 180px repeat(9, minmax(230px, 1fr));
+        gap: 12px;
+        align-items: stretch;
+        min-width: 2280px;
+      }
+      .activity-header {
+        min-height: 88px;
+      }
+      .sprint-label {
+        min-height: 190px;
+      }
+      .story-cell {
+        min-height: 190px;
+      }
+      .story-card {
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+      }
+      .story-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+      }
+      .grid-line {
+        border: 1px solid #e2e8f0;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-900">
+    <header
+      class="h-16 flex items-center justify-between px-6 bg-white border-b border-slate-200 shadow-sm relative z-10"
+    >
+      <div>
+        <div class="flex items-center gap-3">
+          <span
+            class="w-9 h-9 rounded-xl bg-indigo-600 text-white grid place-items-center font-bold"
+            >G</span
+          >
+          <h1 class="text-xl font-bold tracking-tight">GenWork</h1>
+          <span
+            class="text-xs font-medium px-2 py-1 rounded-full bg-indigo-50 text-indigo-700"
+            >User Story Map</span
+          >
+        </div>
+        <p class="text-xs text-slate-500 ml-12 -mt-1">
+          Backbone: discover → configure → manage → execute → automate
+        </p>
+      </div>
+      <div class="flex items-center gap-2 text-xs text-slate-500">
+        <span class="px-3 py-1.5 rounded-lg bg-slate-100">Drag to pan</span>
+        <span class="px-3 py-1.5 rounded-lg bg-slate-100">Scroll to zoom</span>
+        <button
+          id="reset"
+          class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+        >
+          Reset view
+        </button>
+      </div>
+    </header>
+
+    <main
+      id="viewport"
+      class="h-[calc(100vh-4rem)] overflow-hidden select-none"
+    >
+      <div id="canvas">
+        <div class="mb-5 flex items-end justify-between">
+          <div>
+            <p
+              class="text-sm font-semibold text-indigo-600 uppercase tracking-widest"
+            >
+              Product evolution
+            </p>
+            <h2 class="text-3xl font-bold tracking-tight">
+              From first visit to intelligent operations
+            </h2>
+            <p class="mt-1 text-slate-500">
+              Stories are grouped by activity and sliced across delivery
+              increments.
+            </p>
+          </div>
+          <div class="flex gap-2 text-xs">
+            <span
+              class="px-3 py-2 rounded-lg bg-white border border-slate-200 shadow-sm"
+              ><b id="storyCount">0</b> stories</span
+            >
+            <span
+              class="px-3 py-2 rounded-lg bg-amber-50 text-amber-800 border border-amber-200"
+              ><b id="questionCount">0</b> open questions</span
+            >
+          </div>
+        </div>
+
+        <div id="map" class="story-grid"></div>
+      </div>
+    </main>
+
+    <div
+      id="modal"
+      class="hidden fixed inset-0 z-30 bg-slate-950/40 items-center justify-center p-6"
+    >
+      <section
+        class="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+      >
+        <div
+          class="px-6 py-5 border-b border-slate-200 flex items-start justify-between gap-4"
+        >
+          <div>
+            <p
+              id="modalMeta"
+              class="text-xs font-semibold uppercase tracking-widest text-indigo-600"
+            ></p>
+            <h3 id="modalTitle" class="mt-1 text-xl font-bold"></h3>
+          </div>
+          <button
+            id="closeModal"
+            class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600"
+          >
+            ×
+          </button>
+        </div>
+        <div class="px-6 py-5">
+          <p class="text-sm font-semibold text-slate-700 mb-3">
+            Open questions
+          </p>
+          <ul id="modalQuestions" class="space-y-3 text-sm text-slate-600"></ul>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const stories = [
+        ["Public Landing Page", "Onboarding", "Sprint 1", []],
+        [
+          "Owner Self-Registration",
+          "Onboarding",
+          "Sprint 1",
+          [
+            "What are the password complexity/validation requirements?",
+            "Is email verification required before account activation?",
+          ],
+        ],
+        [
+          "Employee Self-Registration with Business Code",
+          "Onboarding",
+          "Sprint 1",
+          [
+            "What happens if an invalid Business Code is entered?",
+            "Can an employee be linked to more than one owner/business?",
+          ],
+        ],
+        ["Guest Login", "Onboarding", "Sprint 1", []],
+        [
+          "Owner Receives Business Code",
+          "Onboarding",
+          "Sprint 1",
+          [
+            "Can the Business Code be regenerated or revoked after creation?",
+            "Is there a limit to how many employees can use the same code?",
+          ],
+        ],
+        [
+          "Administrator Full Account Management",
+          "Administration",
+          "Sprint 1",
+          [
+            "Can Administrators create new accounts directly, and if so, with what role restrictions?",
+            "Is there an audit log for Administrator actions?",
+          ],
+        ],
+        [
+          "Owner Creates Category",
+          "Setup",
+          "Sprint 2",
+          [
+            "Should categories be editable or deletable after creation, and what happens to existing work orders if a category is deleted?",
+            "Are there limits on the number of fields or status tags per category?",
+            "How do components relate to the text/number field restriction?",
+          ],
+        ],
+        ["Owner Creates Work Order", "Work Order Management", "Sprint 2", []],
+        [
+          "Owner Edits Work Order",
+          "Work Order Management",
+          "Sprint 2",
+          [
+            "Can Owners edit work order fields filled in by an Employee, and does that overwrite the employee's entry?",
+          ],
+        ],
+        [
+          "Owner Deletes Work Order",
+          "Work Order Management",
+          "Sprint 2",
+          [
+            "Is deletion permanent, or should deleted work orders be archived/recoverable?",
+          ],
+        ],
+        [
+          "Owner Assigns Work Order to Employees",
+          "Work Order Management",
+          "Sprint 2",
+          [
+            "With multiple employees assigned, are timers and time logs tracked per employee or shared?",
+          ],
+        ],
+        ["Universal Work Order Data Model", "Platform", "Sprint 2", []],
+        [
+          "Owner Suspends an Employee",
+          "Employee Management",
+          "Sprint 2",
+          [
+            "Does access automatically restore after 1 week, or must the Owner manually reinstate the employee?",
+            "What happens to work orders assigned to a suspended employee?",
+          ],
+        ],
+        [
+          "Owner Removes an Employee",
+          "Employee Management",
+          "Sprint 2",
+          [
+            "What happens to work orders previously assigned to a removed employee?",
+            "Can a removed employee rejoin using the same Business Code, or is removal permanent?",
+          ],
+        ],
+        [
+          "Suspended Employee Login Restriction",
+          "Employee Management",
+          "Sprint 2",
+          [
+            "What happens if the Owner un-suspends the employee before the week is over?",
+          ],
+        ],
+        [
+          "Employee Views Assigned Work Orders",
+          "Work Order Execution",
+          "Sprint 3",
+          [],
+        ],
+        [
+          "Employee Fills In Work Order Fields",
+          "Work Order Execution",
+          "Sprint 3",
+          [],
+        ],
+        [
+          "Employee Logs Time with a Timer",
+          "Work Order Execution",
+          "Sprint 3",
+          [
+            "Can an Employee pause a timer, or only start/stop?",
+            "How is parts-used data captured and stored?",
+          ],
+        ],
+        [
+          "Dashboard Category Navigation",
+          "Dashboard",
+          "Sprint 3",
+          [
+            "Can Employees also drag/arrange categories, or is their layout fixed to mirror the Owner's?",
+          ],
+        ],
+        [
+          "Sort Work Orders Within a Category Module",
+          "Dashboard",
+          "Sprint 3",
+          [],
+        ],
+        [
+          "Search Within a Category Module",
+          "Dashboard",
+          "Sprint 3",
+          [
+            "Which fields are included in the search: title, custom fields, status, or others?",
+          ],
+        ],
+        [
+          "Paginate Work Orders Within a Category Module",
+          "Dashboard",
+          "Sprint 3",
+          [],
+        ],
+        [
+          "Filter Category Module by Employee",
+          "Dashboard",
+          "Sprint 3",
+          [
+            "Does the employee dropdown list all employees linked to the business, or only those with work orders in this category?",
+          ],
+        ],
+        ["Filter Category Module by Status", "Dashboard", "Sprint 3", []],
+        [
+          "Category Components (Timers, Logs, Checklists)",
+          "Setup",
+          "Sprint 3",
+          [
+            "How do components relate to the text/number custom-field restriction?",
+            "What configuration options exist for each component type?",
+          ],
+        ],
+        [
+          "Intake Agent Creates Draft Work Orders from Free Text",
+          "AI Agent",
+          "Sprint 4",
+          ["What happens to fields the agent cannot determine from the text?"],
+        ],
+        [
+          "Owner Approves or Edits Agent-Proposed Work Orders",
+          "AI Agent",
+          "Sprint 4",
+          [
+            "Can the Owner reject or discard a draft, and is it deleted or archived?",
+          ],
+        ],
+        ["Agent Actions Are Logged and Visible", "AI Agent", "Sprint 4", []],
+        ["AI Agent Respects User Permissions", "AI Agent", "Sprint 4", []],
+        [
+          "Watchdog Flags Problems and Generates Daily Digest",
+          "AI Agent",
+          "Sprint 4",
+          [
+            "What are the thresholds for timer-too-long, stale, and overloaded?",
+            "How and where is the daily summary delivered?",
+          ],
+        ],
+        ["Dashboard Digest Card", "Dashboard", "Sprint 4", []],
+        [
+          "Employee Reports an Issue via Plain Language",
+          "Work Order Execution",
+          "Sprint 4",
+          [],
+        ],
+        [
+          "Employee Notification Button for Work Order Changes",
+          "Work Order Execution",
+          "Sprint 4",
+          [
+            "Is this in scope or deferred?",
+            "What does notified mean: email, in-app, or push?",
+            "What counts as a change that triggers notification?",
+          ],
+        ],
+        [
+          "Triage Assistant (Stretch Goal)",
+          "AI Agent",
+          "Sprint 4",
+          [
+            "Should this be scheduled within the 3-month roadmap or attempted only if time remains?",
+            "What format does the plan take: assignments, schedule, or something else?",
+          ],
+        ],
+      ];
+
+      const activities = [
+        "Onboarding",
+        "Administration",
+        "Setup",
+        "Work Order Management",
+        "Employee Management",
+        "Work Order Execution",
+        "Dashboard",
+        "Platform",
+        "AI Agent",
+      ];
+      const sprints = ["Sprint 1", "Sprint 2", "Sprint 3", "Sprint 4"];
+      const colors = {
+        "Sprint 1": "bg-sky-50 border-sky-200",
+        "Sprint 2": "bg-emerald-50 border-emerald-200",
+        "Sprint 3": "bg-violet-50 border-violet-200",
+        "Sprint 4": "bg-orange-50 border-orange-200",
+      };
+      const accent = {
+        Onboarding: "bg-indigo-500",
+        Administration: "bg-slate-600",
+        Setup: "bg-emerald-500",
+        "Work Order Management": "bg-blue-500",
+        "Employee Management": "bg-cyan-500",
+        "Work Order Execution": "bg-violet-500",
+        Dashboard: "bg-fuchsia-500",
+        Platform: "bg-slate-500",
+        "AI Agent": "bg-orange-500",
+      };
+
+      const map = document.getElementById("map");
+      const header = document.createElement("div");
+      header.className = "contents";
+      header.innerHTML = `<div class="activity-header rounded-xl bg-slate-900 text-white p-4 flex flex-col justify-between">
+      <span class="text-xs uppercase tracking-widest text-slate-400">Backbone</span>
+      <strong class="text-lg">Activities</strong>
+    </div>`;
+      activities.forEach((a) => {
+        header.innerHTML += `<div class="activity-header rounded-xl ${accent[a]} text-white p-4 flex flex-col justify-between">
+        <span class="text-xs uppercase tracking-widest opacity-75">Activity</span>
+        <strong class="text-lg leading-tight">${a}</strong>
+      </div>`;
+      });
+      map.appendChild(header);
+
+      sprints.forEach((sprint) => {
+        const row = document.createElement("div");
+        row.className = "contents";
+        row.innerHTML = `<div class="sprint-label rounded-xl ${
+          colors[sprint]
+        } border p-4 flex flex-col justify-between">
+        <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Release slice</span>
+        <div><strong class="text-xl">${sprint}</strong><p class="text-xs text-slate-500 mt-1">${
+          stories.filter((s) => s[2] === sprint).length
+        } stories</p></div>
+      </div>`;
+        activities.forEach((activity) => {
+          const cell = document.createElement("div");
+          cell.className =
+            "story-cell rounded-xl grid-line bg-white/70 p-2 space-y-2";
+          stories
+            .filter((s) => s[1] === activity && s[2] === sprint)
+            .forEach((s, i) => {
+              const card = document.createElement("article");
+              card.className =
+                "story-card rounded-xl bg-white border border-slate-200 p-3 shadow-sm";
+              card.innerHTML = `<div class="flex items-start justify-between gap-2">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">${activity}</span>
+            ${
+              s[3].length
+                ? `<span class="shrink-0 text-[10px] font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-800">⚠ ${s[3].length}</span>`
+                : ""
+            }
+          </div>
+          <h3 class="mt-2 text-sm font-bold leading-snug text-slate-800">${
+            s[0]
+          }</h3>
+          <div class="mt-3 flex items-center justify-between">
+            <span class="text-[10px] text-slate-400">User story</span>
+            ${
+              s[3].length
+                ? `<span class="text-[10px] text-amber-700 font-medium">Open questions</span>`
+                : `<span class="text-[10px] text-emerald-600 font-medium">Defined</span>`
+            }
+          </div>`;
+              card.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (!s[3].length) return;
+                document.getElementById("modalTitle").textContent = s[0];
+                document.getElementById(
+                  "modalMeta"
+                ).textContent = `${s[2]} · ${s[1]}`;
+                document.getElementById("modalQuestions").innerHTML = s[3]
+                  .map(
+                    (q) =>
+                      `<li class="flex gap-3"><span class="text-amber-500">●</span><span>${q}</span></li>`
+                  )
+                  .join("");
+                document.getElementById("modal").classList.remove("hidden");
+                document.getElementById("modal").classList.add("flex");
+              });
+              cell.appendChild(card);
+            });
+          row.appendChild(cell);
+        });
+        map.appendChild(row);
+      });
+
+      document.getElementById("storyCount").textContent = stories.length;
+      document.getElementById("questionCount").textContent = stories.reduce(
+        (n, s) => n + s[3].length,
+        0
+      );
+
+      const viewport = document.getElementById("viewport");
+      const canvas = document.getElementById("canvas");
+      let scale = 0.72,
+        x = 20,
+        y = 20,
+        dragging = false,
+        startX,
+        startY;
+      function render() {
+        canvas.style.transform = `translate(${x}px,${y}px) scale(${scale})`;
+      }
+      viewport.addEventListener("mousedown", (e) => {
+        if (e.target.closest(".story-card") || e.target.closest("button"))
+          return;
+        dragging = true;
+        viewport.classList.add("panning");
+        startX = e.clientX - x;
+        startY = e.clientY - y;
+      });
+      window.addEventListener("mousemove", (e) => {
+        if (dragging) {
+          x = e.clientX - startX;
+          y = e.clientY - startY;
+          render();
+        }
+      });
+      window.addEventListener("mouseup", () => {
+        dragging = false;
+        viewport.classList.remove("panning");
+      });
+      viewport.addEventListener(
+        "wheel",
+        (e) => {
+          e.preventDefault();
+          const rect = viewport.getBoundingClientRect(),
+            mx = e.clientX - rect.left,
+            my = e.clientY - rect.top;
+          const next = Math.min(
+            1.6,
+            Math.max(0.35, scale * (e.deltaY < 0 ? 1.08 : 0.92))
+          );
+          x = mx - ((mx - x) * next) / scale;
+          y = my - ((my - y) * next) / scale;
+          scale = next;
+          render();
+        },
+        { passive: false }
+      );
+      document.getElementById("reset").onclick = () => {
+        scale = 0.72;
+        x = 20;
+        y = 20;
+        render();
+      };
+      document.getElementById("closeModal").onclick = () =>
+        document.getElementById("modal").classList.add("hidden");
+      document.getElementById("modal").onclick = (e) => {
+        if (e.target.id === "modal") e.currentTarget.classList.add("hidden");
+      };
+      render();
+    </script>
+  </body>
+</html>
