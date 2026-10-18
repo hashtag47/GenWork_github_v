@@ -21,4 +21,7 @@ prompts/
 backlog*.hjson
 
 #Private Assets
-assets/
+assets
+
+/instance/
+.pytest_cache/
