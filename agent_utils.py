@@ -6,6 +6,7 @@ import hashlib
 import hjson
 from dotenv import load_dotenv
 from openai import OpenAI
+from pathlib import Path
 
 load_dotenv()
 client = OpenAI(api_key=os.environ.get("REQUESTY_API_KEY"), base_url="https://router.requesty.ai/v1")
@@ -49,6 +50,9 @@ def ask_hjson(model, messages, max_tokens=1500, retries=1):
     raise ValueError(f"{model} did not return valid HJSON")
 
 # ---------- Backlog versioning (same scheme as iterate_backlog.py) ----------
+
+def load_system_prompt(path: str="prompts/iterate_backlog_prompt.txt") -> str:
+    return Path(path).read_text(encoding="utf-8")
 
 def find_latest_backlog():
     path, version = "backlog.hjson", 1
