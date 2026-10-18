@@ -25,3 +25,6 @@ assets
 
 /instance/
 .pytest_cache/
+
+# Structure estimation
+sealed_estimates.hjson
