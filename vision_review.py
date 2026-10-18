@@ -9,8 +9,8 @@ MODEL = "anthropic/claude-sonnet-5"  # must accept image input
 PROMPT = load_system_prompt("prompts/vision_review_prompt.txt")
 
 if __name__ == "__main__":
-    image_file = input("Red-pen image [assets/wireframe_markup.png]: ").strip() or "assets/wireframe_markup.png"
-    html_file = input("Wireframe HTML [wireframe.html]: ").strip() or "wireframe.html"
+    image_file = input("Red-pen image [assets/wireframe2_markup.png]: ").strip() or "assets/wireframe2_markup.png"
+    html_file = input("Wireframe HTML [wireframe_v2.html]: ").strip() or "wireframe_v2.html"
     for f in (image_file, html_file):
         if not os.path.exists(f):
             sys.exit(f"Error: could not find {f}")
