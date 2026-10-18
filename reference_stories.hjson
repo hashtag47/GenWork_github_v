@@ -1,0 +1,16 @@
+{
+  reference_stories: [
+    {
+      id: landing_guest_echo
+      points: 2
+      agent_fit: pair
+      why: One route to landing page, and another route to authentication page, no unknown but need human decide how the page looks exactly
+    }
+    {
+      id: admin_full_access_orbit
+      points: 8
+      agent_fit: pair
+      why: Administrator features sounded almost all-finished, not sure it should be in the Sprint 1
+    }
+  ]
+}
