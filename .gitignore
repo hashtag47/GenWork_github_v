@@ -31,3 +31,6 @@ sealed_estimates.hjson
 
 # Basic Wireframes
 wireframe*.html
+
+# Wireframe Changes
+wireframe_changes.hjson
