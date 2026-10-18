@@ -2,32 +2,11 @@ import os
 import sys
 import base64
 import hjson
-from agent_utils import ask_hjson
+from agent_utils import ask_hjson, load_system_prompt
 
 MODEL = "anthropic/claude-sonnet-5"  # must accept image input
 
-PROMPT = """You are a UX designer reviewing a wireframe that a human has marked up with a red pen.
-The image is a screenshot of the wireframe with RED ink drawn on it. The HTML source of the
-wireframe is included below.
-
-List every change the red ink asks for, one item per mark. Do NOT suggest improvements of your
-own: report only what the red ink says. If a mark is ambiguous, still list it, set confidence to
-low and explain the ambiguity in 'unclear'.
-
-Return ONLY HJSON in exactly this form, one field per line:
-{
-  changes: [
-    {
-      where: "Which element the mark is on, e.g. the 'Save' button in the top bar"
-      change: "What the mark asks for, e.g. Remove this button"
-      confidence: high
-      unclear: ""
-    }
-  ]
-}
-
-WIREFRAME HTML:
-"""
+PROMPT = load_system_prompt("prompts/vision_review_prompt.txt")
 
 if __name__ == "__main__":
     image_file = input("Red-pen image [assets/wireframe_markup.png]: ").strip() or "assets/wireframe_markup.png"
