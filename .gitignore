@@ -19,3 +19,6 @@ prompts/
 
 # Private backlog
 backlog*.hjson
+
+#Private Assets
+assets/
