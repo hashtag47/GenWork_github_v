@@ -18,4 +18,4 @@ __pycache__/
 prompts/
 
 # Private backlog
-backlog.hjson
+backlog*.hjson
