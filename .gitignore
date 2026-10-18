@@ -34,3 +34,7 @@ wireframe*.html
 
 # Wireframe Changes
 wireframe_changes.hjson
+
+# Temp
+app/
+tests/
